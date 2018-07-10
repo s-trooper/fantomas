@@ -467,26 +467,44 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
         f()
 
     let preserveLineBreaks ots (nts:(Token * string) list) = 
-        let rec newSpacingLength  =
-            match nts with             
-            | (EOL, _)::(Space t)::(Tok(_, _), "[<")::_ -> 2
-            | (EOL, _)::(EOL, _)::(Tok(_, _), "[<")::_-> 0
-            | (EOL, _)::_ -> 1
+        let addMissingSemicolon xs = 
+            match xs with             
             | (Tok(_, _), ";")::_ -> 
                 addText ";"
-                1
-            | (Space t)::_ -> String.length t
-            | _ -> 0
+            | _ -> ()
 
+        let indentWithNewSpacing xs = 
+            let rec newSpacingLength xs =
+                match xs with             
+                | (EOL, _)::(Space _)::(Tok(_, _), "[<")::_ -> 2
+                | (EOL, _)::(EOL, _)::(Tok(_, _), "[<")::_ -> 0
+                | (EOL, _)::(Space _)::_ -> 1
+                | (EOL, _)::rs -> newSpacingLength rs
+                | (Tok(_, _), ";")::_ -> 1
+                | (Space t)::_ -> String.length t
+                | _ -> 0
+
+            match ots with
+            | SpaceToken t::_ -> 
+                let nsLen = newSpacingLength nts
+                let oi = if nsLen <= String.length t then t.Substring(nsLen) else t
+                addText oi
+            | _ -> ()
+
+        let addMissingPipe xs ns =
+            let isWhiteSpace (_, s) = String.IsNullOrWhiteSpace(s)
+            let os = xs |> List.skipWhile ((|Wrapped|) >> isWhiteSpace)
+            match os, ns with
+            | Marked(_, "|", _)::_, (Tok(_, _), s)::_ when s <> "|" ->
+                addText " |"
+            | _, _ -> ()
+
+        addMissingSemicolon nts
         buffer.Append Environment.NewLine |> ignore
 
-        match ots with
-        | SpaceToken t::_ -> 
-            let nsLen = newSpacingLength 
-            let oi = if nsLen <= String.length t then t.Substring(nsLen) else t
-            addText oi
-        | _ -> ()
-
+        indentWithNewSpacing nts
+        addMissingPipe ots nts
+        
     let addNewLineToDirective newTokens moreOrigTokens = 
         let isWhiteSpace (_, s) = String.IsNullOrWhiteSpace(s)
         let os = moreOrigTokens |> List.skipWhile ((|Wrapped|) >> isWhiteSpace)
@@ -645,7 +663,7 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                     moreNewTokens 
                 else
                     match moreNewTokens with
-                    | Space t::rs -> 
+                    | Space s::rs -> 
                         addText " "
                         rs
                     | _ -> moreNewTokens
