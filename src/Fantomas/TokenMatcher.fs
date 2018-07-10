@@ -467,15 +467,15 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
         f()
 
     let preserveLineBreaks ots (nts:(Token * string) list) = 
-        let addMissingSemicolon xs = 
-            match xs with             
-            | (Tok(_, _), ";")::_ -> 
+        let addMissingSemicolon xs =
+            match xs with
+            | (Tok(_, _), ";")::_ ->
                 addText ";"
             | _ -> ()
 
         let indentWithNewSpacing xs = 
             let rec newSpacingLength xs =
-                match xs with             
+                match xs with
                 | (EOL, _)::(Space _)::(Tok(_, _), "[<")::_ -> 2
                 | (EOL, _)::(EOL, _)::(Tok(_, _), "[<")::_ -> 0
                 | (EOL, _)::(Space _)::_ -> 1
@@ -485,7 +485,7 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                 | _ -> 0
 
             match ots with
-            | SpaceToken t::_ -> 
+            | SpaceToken t::_ ->
                 let nsLen = newSpacingLength nts
                 let oi = if nsLen <= String.length t then t.Substring(nsLen) else t
                 addText oi
