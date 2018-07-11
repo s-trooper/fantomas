@@ -98,7 +98,7 @@ let ``should preserve triple-quote strings``() =
             </request>\"\"\"
 
         member self.X = switchvox_users_voicemail_getList_response
-"    config 
+    " config 
     |> prepend newline
     |> should equal "
 type GetList() =
@@ -123,7 +123,7 @@ let main argv =
     }
     \"\"\"))
     0
-"    config 
+    " config 
     |> prepend newline
     |> should equal "
 [<EntryPoint>]

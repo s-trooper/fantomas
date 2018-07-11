@@ -460,10 +460,13 @@ let ``newline handling in directives``() =
     formatSourceString false """
 #if NOT_DEFINED
 let x = 1
+let y = 2
 #endif
 """  config
     |> should equal """
 #if NOT_DEFINED
+
 let x = 1
+let y = 2
 #endif
 """

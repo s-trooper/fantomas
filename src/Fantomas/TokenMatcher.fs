@@ -617,7 +617,7 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                     addText Environment.NewLine
                     addText line.[numSpaces..]
                 else
-                    if not isPreserveEOL then addText Environment.NewLine
+                    addText Environment.NewLine
                     addText line
             ) lines
 
