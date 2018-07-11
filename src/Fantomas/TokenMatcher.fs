@@ -575,8 +575,9 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
         | (PreprocessorDirectiveChunk (tokensText, moreOrigTokens)), newTokens ->            
             let text = String.concat "" tokensText
             Debug.WriteLine("injecting preprocessor directive '{0}'", box text)
-            if not isPreserveEOL then
+            if not isPreserveEOL then 
                 addText Environment.NewLine
+
             for x in tokensText do addText x
             addNewLineToDirective newTokens moreOrigTokens
 
@@ -616,10 +617,11 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                     addText Environment.NewLine
                     addText line.[numSpaces..]
                 else
-                    addText Environment.NewLine
+                    if not isPreserveEOL then addText Environment.NewLine
                     addText line
-            ) lines 
+            ) lines
 
+            if isPreserveEOL then addText Environment.NewLine
             loop moreOrigTokens newTokens
 
         | (LineCommentChunk true (commentTokensText, moreOrigTokens)), [] ->

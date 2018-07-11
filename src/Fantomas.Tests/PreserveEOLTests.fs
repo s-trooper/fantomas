@@ -264,7 +264,7 @@ let arr = [| (1, 1, 1); (1, 2, 2); (1, 3, 3); (2, 1, 2); (2, 2, 4); (2, 3, 6); (
              (3, 2, 6); (3, 3, 9) |]
 """
 [<Test>]
-let ``handle # identifier``() =
+let ``handle directives identifier``() =
     formatSourceString false """namespace global
 
 #if DEBUG
@@ -326,7 +326,7 @@ seq { yield! 1; yield! 2}
 """
 
 [<Test>]
-let ``indentation issue 5 (# handling)``() =
+let ``indentation handling for directives``() =
     formatSourceString false """
     #if F
     #else
@@ -453,4 +453,17 @@ try
 with :? _ -> ()
 
 let y = 4
+"""
+
+[<Test>]
+let ``newline handling in directives``() =
+    formatSourceString false """
+#if NOT_DEFINED
+let x = 1
+#endif
+"""  config
+    |> should equal """
+#if NOT_DEFINED
+let x = 1
+#endif
 """
