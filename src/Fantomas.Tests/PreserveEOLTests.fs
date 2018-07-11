@@ -422,6 +422,21 @@ let ``keep single pipe with pEOL``() =
 """
 
 [<Test>]
+let ``keep multiple pipes with pEOL``() =
+    formatSourceString false """
+    match ts with
+    | 0
+    | 1 -> 2
+    | _ -> 3
+    """ config
+    |> should equal """
+    match ts with
+    | 0
+    | 1 -> 2
+    | _ -> 3
+"""
+
+[<Test>]
 let ``remove single pipe without pEOL``() =
     formatSourceString false """
     try

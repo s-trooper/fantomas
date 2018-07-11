@@ -493,8 +493,9 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
 
         let addMissingPipe xs ns =
             let isWhiteSpace (_, s) = String.IsNullOrWhiteSpace(s)
-            let os = xs |> List.skipWhile ((|Wrapped|) >> isWhiteSpace)
-            match os, ns with
+            let tos = xs |> List.skipWhile ((|Wrapped|) >> isWhiteSpace)
+            let tns = ns |> List.skipWhile (isWhiteSpace)
+            match tos, tns with
             | Marked(_, "|", _)::_, (Tok(_, _), s)::_ when s <> "|" ->
                 addText " |"
             | _, _ -> ()
