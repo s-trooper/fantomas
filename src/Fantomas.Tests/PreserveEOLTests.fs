@@ -296,7 +296,7 @@ let x = [ yield! es; yield (s, e') ]
 [<Test>]
 let ``indentation issue 1``() =
     formatSourceString false """
-let f1 =
+let f1 =  
     let f2 =
         if pred then 1
         else 2
@@ -469,4 +469,15 @@ let y = 2
 let x = 1
 let y = 2
 #endif
+"""
+
+[<Test; Description("not solved")>]
+let ``keep indent of previous in sequence``() =
+    formatSourceString false """
+let f(x, 
+       y) = ()
+"""  config
+    |> should equal """
+let f (x,
+       y) = ()
 """

@@ -473,9 +473,9 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                 addText ";"
             | _ -> ()
 
-        let indentWithNewSpacing xs = 
-            let rec newSpacingLength xs =
-                match xs with
+        let indentWithNewSpacing xs ys = 
+            let rec newSpacingLength zs =
+                match zs with
                 | (EOL, _)::(Space _)::(Tok(_, _), "[<")::_ -> 2
                 | (EOL, _)::(EOL, _)::(Tok(_, _), "[<")::_ -> 0
                 | (EOL, _)::(Space _)::_ -> 1
@@ -484,17 +484,17 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                 | (Space t)::_ -> String.length t
                 | _ -> 0
 
-            match ots with
+            match xs with
             | SpaceToken t::_ ->
-                let nsLen = newSpacingLength nts
+                let nsLen = newSpacingLength ys
                 let oi = if nsLen <= String.length t then t.Substring(nsLen) else t
                 addText oi
             | _ -> ()
 
-        let addMissingPipe xs ns =
+        let addMissingPipe xs ys =
             let isWhiteSpace (_, s) = String.IsNullOrWhiteSpace(s)
             let tos = xs |> List.skipWhile ((|Wrapped|) >> isWhiteSpace)
-            let tns = ns |> List.skipWhile (isWhiteSpace)
+            let tns = ys |> List.skipWhile (isWhiteSpace)
             match tos, tns with
             | Marked(_, "|", _)::_, (Tok(_, _), s)::_ when s <> "|" ->
                 addText " |"
@@ -503,7 +503,7 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
         addMissingSemicolon nts
         buffer.Append Environment.NewLine |> ignore
 
-        indentWithNewSpacing nts
+        indentWithNewSpacing ots nts
         addMissingPipe ots nts
         
     let addNewLineToDirective newTokens moreOrigTokens = 
@@ -666,7 +666,7 @@ let integrateComments isPreserveEOL (originalText : string) (newText : string) =
                     moreNewTokens 
                 else
                     match moreNewTokens with
-                    | Space s::rs -> 
+                    | Space _::rs ->
                         addText " "
                         rs
                     | _ -> moreNewTokens
